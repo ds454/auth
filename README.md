@@ -10,7 +10,7 @@ Logging in means getting a session token. Session tokens are handled by this rep
 
 If the creds are valid, auth generates a long random string to be a session token. Auth places the session token and user uuid into redis, with the session token as the key and the user uuid as the value. A TTL is placed on the entry, which will force users to log in again for security. Auth then returns the session token to frontend. Frontend saves the session token, and includes the token in all requests inside the gRPC metadata.
 
-### Request Authentication
+#### Request Authentication
 Except for user registration and logging in, all requests will be checked against auth. Session tokens will be passed to backend inside gRPC metadata. Details about this are TBD. Auth will read the session token, and check if it exists in redis. If it does, the uuid is added to the request inside a metadata value that is TBD. If the session token does not exist, then request is denied and the user needs to log in again.
 
 #### Password Changes and User Deletion
