@@ -1,5 +1,5 @@
 # Auth
-Handles user authentication and session tokens. Does not handle user registration.
+Handles user authentication and session token verification, and session token acquisition. Does not handle user registration, updates, or deletion.
 
 ## How to interact with auth
 #### Registration
