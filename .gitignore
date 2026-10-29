@@ -1,3 +1,5 @@
 nul
 
 src/generated
+
+__debug_bin*
