@@ -40,13 +40,6 @@ func GetClient() *RedisClient {
 	return &client
 }
 
-type KVStore interface {
-	Get(string) string
-	Put(string, string) bool
-	Delete(string) bool
-	Exists(string) bool
-}
-
 func (c RedisClient) Get(ctx context.Context, key string) (string, error) {
 	val, err := c.client.Get(ctx, key).Result()
 	if err != nil {
