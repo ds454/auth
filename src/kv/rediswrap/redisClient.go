@@ -21,7 +21,7 @@ type RedisClient struct {
 
 func GetClient(cfg config.AuthConfig) *RedisClient {
 	redisOnce.Do(func() {
-		log.Info("Setting up RedisClient...")
+		log.Debug("Setting up RedisClient...")
 
 		conf := cfg
 
@@ -37,7 +37,7 @@ func GetClient(cfg config.AuthConfig) *RedisClient {
 		client.client = redisClient
 
 		for {
-			log.Info("Testing connection...")
+			log.Debug("Testing connection...")
 			// context.Background() is fine here since this only gets called during setup
 			if !client.TestConnection(context.Background()) {
 				log.Error("Unable to connect to Redis at %v", addr)
@@ -47,9 +47,7 @@ func GetClient(cfg config.AuthConfig) *RedisClient {
 				break
 			}
 		}
-		log.Info("Connection successful!")
-
-		log.Info("Done!")
+		log.Debug("Connection successful!")
 	})
 	return &client
 }
@@ -74,6 +72,38 @@ func (c *RedisClient) Put(ctx context.Context, key string, value string) bool {
 	_, err := c.client.Set(ctx, key, value, time.Duration(config.GetConfig().TtlMs)*time.Millisecond).Result()
 	if err != nil {
 		log.Error("Problem setting '%v' = '%v':", key, value)
+		log.Error("%v", err)
+		return false
+	}
+	return true
+}
+
+func (c *RedisClient) Link(ctx context.Context, key string, value string) bool {
+
+	transaction := c.client.TxPipeline()
+
+	transaction.Set(ctx, key, value, time.Duration(config.GetConfig().TtlMs)*time.Millisecond)
+	transaction.Set(ctx, value, key, time.Duration(config.GetConfig().TtlMs)*time.Millisecond)
+
+	_, err := transaction.Exec(ctx)
+	if err != nil {
+		log.Error("Problem linking '%v' <---> '%v':", key, value)
+		log.Error("%v", err)
+		return false
+	}
+	return true
+}
+
+func (c *RedisClient) Unlink(ctx context.Context, key string, value string) bool {
+
+	transaction := c.client.TxPipeline()
+
+	transaction.Del(ctx, key)
+	transaction.Del(ctx, value)
+
+	_, err := transaction.Exec(ctx)
+	if err != nil {
+		log.Error("Problem unlinking '%v' <---> '%v':", key, value)
 		log.Error("%v", err)
 		return false
 	}

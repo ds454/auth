@@ -8,6 +8,9 @@
     "mounts": [
         "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
     ],
+    "forwardPorts": [
+        8083
+    ],
     "features": {
         "ghcr.io/devcontainers/features/docker-outside-of-docker:1.10.1": {},
         "ghcr.io/devcontainers-extra/features/protoc:1.0.3": {

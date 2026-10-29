@@ -40,6 +40,26 @@ func (c *LocalKVStore) Get(ctx context.Context, key string) (string, error) {
 	return val, nil
 }
 
+func (c *LocalKVStore) Link(ctx context.Context, key string, value string) bool {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
+	c.store[key] = value
+	c.store[value] = key
+
+	return true
+}
+
+func (c *LocalKVStore) Unlink(ctx context.Context, key string, value string) bool {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
+	delete(c.store, key)
+	delete(c.store, value)
+
+	return true
+}
+
 func (c *LocalKVStore) Exists(ctx context.Context, key string) bool {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()

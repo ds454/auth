@@ -26,6 +26,8 @@ func main() {
 		kvStore = rediswrap.GetClient(*config)
 
 	case "BUILTIN":
+		log.Warn("Using local kv store for session tracking. This does not automatically delete session tokens, and should not be used outside local development.")
+		log.Warn("It also does not support transactions. Don't try to test race conditions when in this mode.")
 		kvStore = hashmapwrap.GetLocalKVStore()
 
 	default:
@@ -34,7 +36,8 @@ func main() {
 
 	server := grpc.NewServer()
 	genauth.RegisterAuthServer(server, &grpcauth.AuthServer{
-		KVStore: kvStore,
+		KVStore:       kvStore,
+		SessionLength: config.SessionKeyLen,
 	})
 
 	listen, err := net.Listen("tcp", fmt.Sprintf(":%d", config.GrpcListenPort))
@@ -43,7 +46,7 @@ func main() {
 		log.Abort("%v", err)
 	}
 
-	log.Info("Starting grpc server")
+	log.Debug("Starting grpc server")
 	if err := server.Serve(listen); err != nil {
 		log.Error("Unable to start GRPC server:")
 		log.Abort("%v", err)

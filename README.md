@@ -18,3 +18,28 @@ When user service deletes a user or changes a password, auth needs to know about
 
 ## Design Choices
 Because every request hits auth, it needs to have low latency. It also needs to be horizontally scalable to support large amounts of requests. This means there needs to be a single fast place where session tokens are stored and mapped to user uuids. These requirements match a stateless auth service backed by a key value store like Redis or Valkey. 
+
+
+When the user logs in, we need to map a session token to a uuid:
+```
+Session Token ---> uuid
+```
+
+When we invalidate a session token, we need to map a uuid to a Session Token:
+```
+uuid ---> Session Token
+```
+
+...resulting in this setup, which I will be calling a 'Link':
+```
+Session Token <---> uuid
+```
+
+Redis doesn't support this, so we have to it with two keys like this:
+```
+Session Token ---> uuid
+uuid ---> Session Token
+```
+
+Since these are two operations, it has to happen in a redis transaction so we don't have potential race conditions. Since the session tokens and uuids are stored as keys, they should be different lengths to make collisions impossible.
+
