@@ -3,6 +3,8 @@ package log
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"runtime"
 	"sync"
 	"time"
 )
@@ -23,23 +25,28 @@ func Get() *Logger {
 	return instance
 }
 
-func (l *Logger) log(level, msg string) {
-	ts := time.Now().Format("2006-01-02 15:04:05")
+func (l *Logger) logf(level, format string, args ...any) {
+	_, file, line, ok := runtime.Caller(3)
+	if !ok {
+		file, line = "???", 0
+	}
+
+	ts := time.Now().Format("15:04:05")
 	color := levelColor(level)
-	fmt.Fprintf(l.out, "%s[%s]%s\t%s[%s]%s %s\n",
+	fmt.Fprintf(l.out, "%s[%s]%s\t%s[%s] %s:%d%s %s\n",
 		color, level, colorReset,
-		colorGray, ts, colorReset,
-		msg,
+		colorGray, ts, filepath.Base(file), line, colorReset,
+		fmt.Sprintf(format, args...),
 	)
 }
 
-func (l *Logger) Info(format string, args ...any)  { l.log("INFO", fmt.Sprintf(format, args...)) }
-func (l *Logger) Warn(format string, args ...any)  { l.log("WARN", fmt.Sprintf(format, args...)) }
-func (l *Logger) Error(format string, args ...any) { l.log("ERROR", fmt.Sprintf(format, args...)) }
-func (l *Logger) Debug(format string, args ...any) { l.log("DEBUG", fmt.Sprintf(format, args...)) }
+func (l *Logger) info(format string, args ...any)  { l.logf("INFO", format, args...) }
+func (l *Logger) warn(format string, args ...any)  { l.logf("WARN", format, args...) }
+func (l *Logger) error(format string, args ...any) { l.logf("ERROR", format, args...) }
+func (l *Logger) debug(format string, args ...any) { l.logf("DEBUG", format, args...) }
 
-func Debug(format string, args ...any) { Get().Debug(format, args...) }
-func Info(format string, args ...any)  { Get().Info(format, args...) }
-func Warn(format string, args ...any)  { Get().Warn(format, args...) }
-func Error(format string, args ...any) { Get().Error(format, args...) }
-func Abort(format string, args ...any) { Get().Error(format, args...); os.Exit(1) }
+func Debug(format string, args ...any) { Get().debug(format, args...) }
+func Info(format string, args ...any)  { Get().info(format, args...) }
+func Warn(format string, args ...any)  { Get().warn(format, args...) }
+func Error(format string, args ...any) { Get().error(format, args...) }
+func Abort(format string, args ...any) { Get().error(format, args...); os.Exit(1) }

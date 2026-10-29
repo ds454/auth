@@ -2,31 +2,32 @@ package rediswrap
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 
 	"github.com/ds454/auth/src/config"
 	"github.com/ds454/auth/src/log"
 	"github.com/redis/go-redis/v9"
+
+	"github.com/ds454/auth/src/kv"
 )
 
 var client RedisClient
 var redisOnce sync.Once
 
 type RedisClient struct {
-	client redis.Client
+	client *redis.Client
 }
 
-func GetClient() *RedisClient {
+func GetClient(cfg config.AuthConfig) *RedisClient {
 	redisOnce.Do(func() {
-		log.Info("Setting up redis client...")
+		log.Info("Setting up RedisClient...")
 
-		conf := config.GetConfig()
+		conf := cfg
 
 		addr := conf.RedisHost + ":" + conf.RedisPort
 
-		redisClient := *redis.NewClient(&redis.Options{
+		redisClient := redis.NewClient(&redis.Options{
 			Addr:     addr,
 			Password: conf.RedisPassword,
 			DB:       conf.RedisDB,
@@ -35,12 +36,26 @@ func GetClient() *RedisClient {
 
 		client.client = redisClient
 
+		for {
+			log.Info("Testing connection...")
+			// context.Background() is fine here since this only gets called during setup
+			if !client.TestConnection(context.Background()) {
+				log.Error("Unable to connect to Redis at %v", addr)
+				log.Error("Retrying in 5 seconds...")
+				time.Sleep(time.Duration(time.Second * 5))
+			} else {
+				break
+			}
+		}
+		log.Info("Connection successful!")
+
 		log.Info("Done!")
 	})
 	return &client
 }
 
-func (c RedisClient) Get(ctx context.Context, key string) (string, error) {
+// Error is set if key does not exist
+func (c *RedisClient) Get(ctx context.Context, key string) (string, error) {
 	val, err := c.client.Get(ctx, key).Result()
 	if err != nil {
 		log.Error("Problem getting key '%v' from Redis:", key)
@@ -49,14 +64,14 @@ func (c RedisClient) Get(ctx context.Context, key string) (string, error) {
 	}
 
 	if val == "" {
-		return "", fmt.Errorf("Key '%v' does not exist", key)
+		return "", kv.KeyNotFound
 	}
 
 	return val, nil
 }
 
-func (c RedisClient) Put(ctx context.Context, key string, value string, ttl time.Duration) bool {
-	_, err := c.client.Set(ctx, key, value, ttl).Result()
+func (c *RedisClient) Put(ctx context.Context, key string, value string) bool {
+	_, err := c.client.Set(ctx, key, value, time.Duration(config.GetConfig().TtlMs)*time.Millisecond).Result()
 	if err != nil {
 		log.Error("Problem setting '%v' = '%v':", key, value)
 		log.Error("%v", err)
@@ -65,7 +80,7 @@ func (c RedisClient) Put(ctx context.Context, key string, value string, ttl time
 	return true
 }
 
-func (c RedisClient) Delete(ctx context.Context, key string) bool {
+func (c *RedisClient) Delete(ctx context.Context, key string) bool {
 	// Val is the number of deleted keys
 	val, err := c.client.Del(ctx, key).Result()
 	if err != nil {
@@ -81,16 +96,17 @@ func (c RedisClient) Delete(ctx context.Context, key string) bool {
 	case 1:
 		return true
 	default:
-		// val != 1
+		// val > 1
 		log.Warn("Deleted %d keys intead of the expected 1, ignoring", val)
 		return true
 	}
 }
 
-func (c RedisClient) Exists(ctx context.Context, key string, value string, ttl time.Duration) bool {
+func (c *RedisClient) Exists(ctx context.Context, key string) bool {
+	// Val is the number of existing keys
 	val, err := c.client.Exists(ctx, key).Result()
 	if err != nil {
-		log.Error("Problem setting '%v' = '%v':", key, value)
+		log.Error("Problem checking if '%v' exists:", key)
 		log.Error("%v", err)
 		return false
 	}
@@ -106,7 +122,8 @@ func (c RedisClient) Exists(ctx context.Context, key string, value string, ttl t
 	}
 }
 
-func (c RedisClient) TextConnection(ctx context.Context) bool {
+func (c *RedisClient) TestConnection(ctx context.Context) bool {
+	// Val is "PONG" if successful
 	val, err := c.client.Ping(ctx).Result()
 	if err != nil {
 		log.Error("Problem connecting to redis!")
@@ -119,7 +136,7 @@ func (c RedisClient) TextConnection(ctx context.Context) bool {
 		log.Info("Connected to redis")
 		return true
 	default:
-		log.Error("Unable to connect to redis!")
+		log.Error("Unable to connect to redis! Received '%v' instead of expected 'PONG'", val)
 		return false
 	}
 }

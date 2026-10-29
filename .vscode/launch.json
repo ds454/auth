@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Start Auth",
+            "name": "Auth",
             "type": "go",
             "request": "launch",
-            "mode": "auto",
+            "mode": "debug",
             "preLaunchTask": "Compile Protobuf",
             "console": "integratedTerminal",
             "envFile": "${workspaceFolder}/local-dev/env/auth/auth.env",
