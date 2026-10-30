@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/bsm/redislock"
 	"github.com/ds454/auth/src/config"
 	"github.com/ds454/auth/src/log"
 	"github.com/redis/go-redis/v9"
@@ -17,6 +18,7 @@ var redisOnce sync.Once
 
 type RedisClient struct {
 	client *redis.Client
+	locker *redislock.Client
 }
 
 func GetClient(cfg config.AuthConfig) *RedisClient {
@@ -48,6 +50,10 @@ func GetClient(cfg config.AuthConfig) *RedisClient {
 			}
 		}
 		log.Debug("Connection successful!")
+
+		log.Debug("Setting up locker...")
+		client.locker = redislock.New(redisClient)
+		log.Debug("Done")
 	})
 	return &client
 }
@@ -75,6 +81,16 @@ func (c *RedisClient) Put(ctx context.Context, key string, value string) bool {
 		log.Error("%v", err)
 		return false
 	}
+	return true
+}
+
+func (c *RedisClient) TryLock(ctx context.Context, key string, ttlMs int) bool {
+	_, err := c.locker.Obtain(ctx, key, time.Duration(ttlMs)*time.Millisecond, nil)
+	if err != nil {
+		log.Debug("Did not acquire redis lock: %v", err)
+		return false
+	}
+	log.Debug("Acquired lock")
 	return true
 }
 

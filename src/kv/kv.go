@@ -18,4 +18,6 @@ type KVStore interface {
 	Unlink(ctx context.Context, key string, value string) bool
 	Delete(ctx context.Context, key string) bool
 	Exists(ctx context.Context, key string) bool
+
+	TryLock(ctx context.Context, name string, ttlMs int) bool
 }

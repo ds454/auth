@@ -40,6 +40,10 @@ func (c *LocalKVStore) Get(ctx context.Context, key string) (string, error) {
 	return val, nil
 }
 
+func (c *LocalKVStore) TryLock(ctx context.Context, key string, ttlMs int) bool {
+	return true
+}
+
 func (c *LocalKVStore) Link(ctx context.Context, key string, value string) bool {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()

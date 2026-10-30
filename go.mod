@@ -10,6 +10,7 @@ require (
 )
 
 require (
+	github.com/bsm/redislock v0.10.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	go.uber.org/atomic v1.12.0 // indirect
 	golang.org/x/net v0.60.0 // indirect

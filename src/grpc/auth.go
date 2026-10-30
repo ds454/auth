@@ -22,17 +22,51 @@ func (s *AuthServer) InvalidateSession(ctx context.Context, in *genauth.Invalida
 	uuid := in.GetUuid()
 	log.Debug("Invalidating session token for uuid '%v'", uuid)
 
-	// Get the session token
-	session, err := s.KVStore.Get(ctx, uuid)
-	if err != nil {
+	// Acquire delete lock
+	hasLock := s.KVStore.TryLock(ctx, "lock:"+uuid, 500)
+	if !hasLock {
 
+		// We didn't get the lock, so someone
+		// else is working on this already
+		return &genauth.InvalidateSessionResponse{
+			Problem: &genproblem.Problem{
+				Problem: genproblem.ProblemType_AlreadyHappening,
+			},
+		}, nil
 	}
 
-	redisResult := s.KVStore.Unlink(ctx, session, uuid)
+	// Get the session token
+	session, err := s.KVStore.Get(ctx, uuid)
+	if err == kv.KeyNotFound {
 
-	if redisResult {
-		log.Debug("Session token for uuid '%v' deleted", uuid)
-		return &genauth.InvalidateSessionResponse{}, nil
+		// Session key was missing when it shouldn't be
+		log.Warn("The session key was already deleted, may be in a bad state")
+		delResult := s.KVStore.Delete(ctx, uuid)
+
+		// Couldn't delete the uuid ---> session token for some reason
+		if !delResult {
+			return &genauth.InvalidateSessionResponse{
+				Problem: &genproblem.Problem{
+					Problem: genproblem.ProblemType_UnableToDeleteSessionToken,
+				},
+			}, nil
+		}
+	} else if err != nil {
+		// Couldn't connect to redis
+		return &genauth.InvalidateSessionResponse{
+			Problem: &genproblem.Problem{
+				Problem: genproblem.ProblemType_UnableToDeleteSessionToken,
+			},
+		}, nil
+
+	} else {
+		// We were able to get the session token.
+		// We can now unlink the two atomically.
+		redisResult := s.KVStore.Unlink(ctx, session, uuid)
+		if redisResult {
+			log.Debug("Session token for uuid '%v' deleted", uuid)
+			return &genauth.InvalidateSessionResponse{}, nil
+		}
 	}
 
 	log.Debug("Unable to delete session token for user '%v'", uuid)

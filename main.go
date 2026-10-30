@@ -27,7 +27,7 @@ func main() {
 
 	case "BUILTIN":
 		log.Warn("Using local kv store for session tracking. This does not automatically delete session tokens, and should not be used outside local development.")
-		log.Warn("It also does not support transactions. Don't try to test race conditions when in this mode.")
+		log.Warn("It does not support transactions or locking. Don't try to test race conditions when in this mode.")
 		kvStore = hashmapwrap.GetLocalKVStore()
 
 	default:
