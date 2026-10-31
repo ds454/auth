@@ -9,14 +9,14 @@ import (
 )
 
 type AuthConfig struct {
-	Mode           string `env:"AUTH_STORE_MODE,required"`
-	TtlMs          int64  `env:"AUTH_STORE_TTL_MS,required"`
-	SessionKeyLen  int32  `env:"AUTH_SESSION_TOKEN_LENGTH,required"`
-	GrpcListenPort int    `env:"GRPC_PORT,required"`
-	RedisPort      string `env:"REDIS_PORT,required"`
-	RedisHost      string `env:"REDIS_HOST,required"`
-	RedisDB        int    `env:"REDIS_DB,required"`
-	RedisPassword  string `env:"REDIS_PASSWORD,required"`
+	TtlS            int64  `env:"AUTH_STORE_TTL_S,required"`
+	SessionKeyLen   int32  `env:"AUTH_SESSION_TOKEN_LENGTH,required"`
+	GrpcListenPort  int    `env:"GRPC_PORT,required"`
+	UuidMetadataKey string `env:"UUID_METADATA_KEY,required"`
+	RedisPort       string `env:"REDIS_PORT,required"`
+	RedisHost       string `env:"REDIS_HOST,required"`
+	RedisDB         int    `env:"REDIS_DB,required"`
+	RedisPassword   string `env:"REDIS_PASSWORD,required"`
 }
 
 var config AuthConfig

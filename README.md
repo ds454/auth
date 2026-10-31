@@ -30,7 +30,7 @@ When we invalidate a session token, we need to map a uuid to a Session Token:
 uuid ---> Session Token
 ```
 
-...resulting in this setup, which I will be calling a 'Link':
+...resulting in this relationship, which I will be calling a 'Link':
 ```
 Session Token <---> uuid
 ```

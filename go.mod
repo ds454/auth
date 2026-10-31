@@ -3,6 +3,7 @@ module github.com/ds454/auth
 go 1.27.3
 
 require (
+	github.com/bsm/redislock v0.10.0
 	github.com/caarlos0/env/v11 v11.4.1
 	github.com/redis/go-redis/v9 v9.23.0
 	google.golang.org/grpc v1.85.0
@@ -10,7 +11,6 @@ require (
 )
 
 require (
-	github.com/bsm/redislock v0.10.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	go.uber.org/atomic v1.12.0 // indirect
 	golang.org/x/net v0.60.0 // indirect

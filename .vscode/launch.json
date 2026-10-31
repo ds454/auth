@@ -11,7 +11,10 @@
             "mode": "debug",
             "preLaunchTask": "Compile Protobuf",
             "console": "integratedTerminal",
-            "envFile": "${workspaceFolder}/local-dev/env/auth/auth.env",
+            "envFile": [
+                "${workspaceFolder}/local-dev/env/auth/auth.env",
+                "${workspaceFolder}/local-dev/env/common.env"
+            ],
             "program": "${workspaceFolder}"
         }
     ]
