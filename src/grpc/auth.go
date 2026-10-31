@@ -13,6 +13,7 @@ import (
 	"github.com/ds454/auth/src/log"
 	"github.com/ds454/auth/src/token"
 	"github.com/ds454/auth/src/userservice"
+	authv3 "github.com/envoyproxy/go-control-plane/envoy/service/auth/v3"
 	"github.com/redis/go-redis/v9"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -24,6 +25,7 @@ const userSessionsPrefix string = "user:"
 
 type AuthServer struct {
 	genauth.UnimplementedAuthServer
+	authv3.UnimplementedAuthorizationServer
 	Redis *redis.Client
 }
 
