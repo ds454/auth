@@ -30,6 +30,7 @@ type AuthServer struct {
 }
 
 func (s *AuthServer) LogoutEverywhere(ctx context.Context, req *genauth.LogoutEverywhereRequest) (*genauth.LogoutEverywhereResponse, error) {
+	log.Debug("Received LogoutEverywhere request")
 	uuid, err := uuidFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -67,6 +68,7 @@ func (s *AuthServer) LogoutEverywhere(ctx context.Context, req *genauth.LogoutEv
 }
 
 func (s *AuthServer) LogoutSomewhere(ctx context.Context, req *genauth.LogoutSomewhereRequest) (*genauth.LogoutSomewhereResponse, error) {
+	log.Debug("Received LogoutSomewhere request")
 	uuid, err := uuidFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -141,6 +143,7 @@ func (s *AuthServer) LogoutSomewhere(ctx context.Context, req *genauth.LogoutSom
 }
 
 func (s *AuthServer) GetActiveSessions(ctx context.Context, req *genauth.GetActiveSessionsRequest) (*genauth.GetActiveSessionsResponse, error) {
+	log.Debug("Received GetActiveSessions request")
 	uuid, err := uuidFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -222,7 +225,7 @@ func (s *AuthServer) GetActiveSessions(ctx context.Context, req *genauth.GetActi
 }
 
 func (s *AuthServer) Login(ctx context.Context, req *genauth.LoginRequest) (*genauth.LoginResponse, error) {
-
+	log.Debug("Received Login request")
 	username := req.GetUsername()
 	password := req.GetPassword()
 

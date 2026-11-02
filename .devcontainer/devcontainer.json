@@ -1,15 +1,16 @@
 {
-    "name": "music-download-api",
+    "name": "auth",
     "image": "mcr.microsoft.com/devcontainers/go:1.27-bookworm",
     "initializeCommand": "docker network inspect ds454 >nul 2>&1 || docker network create ds454",
     "runArgs": [
-        "--network=ds454"
+        "--network=ds454",
+        "--name=auth"
     ],
     "mounts": [
         "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
     ],
-    "forwardPorts": [
-        8083
+    "appPort": [
+        "8083:50051"
     ],
     "features": {
         "ghcr.io/devcontainers/features/docker-outside-of-docker:1.10.1": {},

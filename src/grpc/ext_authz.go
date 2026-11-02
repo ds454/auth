@@ -18,6 +18,7 @@ var _sessionKeyLength int = (int)(config.GetConfig().SessionKeyLen)
 var _sessionTokenKey string = config.GetConfig().SessionTokenKey
 
 func (s *AuthServer) Check(ctx context.Context, req *authv3.CheckRequest) (*authv3.CheckResponse, error) {
+	log.Debug("Received authentication request")
 
 	// Get the session token from the request
 	headers := req.GetAttributes().GetRequest().GetHttp().GetHeaders()
