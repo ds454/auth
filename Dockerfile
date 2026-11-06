@@ -18,7 +18,7 @@ RUN     chmod +x ./local-dev/apply-proto-go.sh && \
         ./local-dev/apply-proto-go.sh
 
 # Compile project
-RUN     go build -v -x -o app
+RUN     go mod download && go build -v -x -o app
 
 # Actual image
 FROM    alpine:3.24
