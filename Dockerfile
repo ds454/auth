@@ -5,6 +5,7 @@ COPY    .   .
 # Install bash and protoc
 RUN     apk update && \
         apk add \
+            bash \
             protoc \
             protobuf-dev
 
