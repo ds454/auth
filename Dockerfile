@@ -6,7 +6,7 @@ COPY    .   .
 RUN     apk update && apk add bash protoc protobuf-dev
 
 # Install golang plugins
-RUN     ./.devcontainer/start.sh
+RUN     ./.devcontainer/install-proto-plugins.sh
 
 # Transpile protobuf to go
 RUN     ./local-dev/apply-proto-go.sh
