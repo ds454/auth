@@ -8,6 +8,7 @@ import (
 type SessionToken struct {
 	SessionTokenId string `redis:"stknid"`
 	Uuid           string `redis:"uuid"`
+	Steamid        string `redis:"stmid"`
 	Device         string `redis:"dev"`
 	Expiration     int64  `redis:"exp"`
 }

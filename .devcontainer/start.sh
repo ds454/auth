@@ -15,4 +15,4 @@ export PATH="$PATH:$(go env GOPATH)/bin"
 go mod download
 go mod tidy
 
-alias apply='/workspaces/auth/local-dev/apply-proto-go.sh'
+echo "alias apply='/workspaces/auth/local-dev/apply-proto-go.sh'" >> /home/vscode/.bashrc

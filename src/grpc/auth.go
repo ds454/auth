@@ -229,7 +229,7 @@ func (s *AuthServer) Login(ctx context.Context, req *genauth.LoginRequest) (*gen
 	username := req.GetUsername()
 	password := req.GetPassword()
 
-	uuid, isValid, err := userservice.UsernamePasswordAreValid(ctx, username, password)
+	uuid, steamid, isValid, err := userservice.UsernamePasswordAreValid(ctx, username, password)
 
 	if err != nil {
 		return &genauth.LoginResponse{
@@ -270,6 +270,7 @@ func (s *AuthServer) Login(ctx context.Context, req *genauth.LoginRequest) (*gen
 	transaction.HSet(ctx, sessionTokenPrefix+sessionToken, token.SessionToken{
 		SessionTokenId: token.MakeRandomString(8),
 		Uuid:           uuid,
+		Steamid:        steamid,
 		Device:         device,
 		Expiration:     expiration,
 	})

@@ -7,7 +7,7 @@ import (
 )
 
 // TODO: Call user service
-func UsernamePasswordAreValid(ctx context.Context, username string, password string) (string, bool, error) {
+func UsernamePasswordAreValid(ctx context.Context, username string, password string) (string, string, bool, error) {
 	log.Error("TODO: Call user service")
-	return "averylonguuid", true, nil
+	return "averylonguuid", "asteamid", true, nil
 }
