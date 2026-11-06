@@ -3,13 +3,18 @@ WORKDIR /build
 COPY    .   .
 
 # Install bash and protoc
-RUN     apk update && apk add bash protoc protobuf-dev
+RUN     apk update && \
+        apk add \
+            protoc \
+            protobuf-dev
 
 # Install golang plugins
-RUN     ./.devcontainer/install-proto-plugins.sh
+RUN     chmod +x ./.devcontainer/install-proto-plugins.sh && \
+        ./.devcontainer/install-proto-plugins.sh
 
 # Transpile protobuf to go
-RUN     ./local-dev/apply-proto-go.sh
+RUN     chmod +x ./local-dev/apply-proto-go.sh && \
+        ./local-dev/apply-proto-go.sh
 
 # Compile project
 RUN     go build -v -x -o app
