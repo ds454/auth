@@ -8,4 +8,4 @@ echo Done!
 # Install the grpc go plugins
 echo "alias apply='/workspaces/auth/local-dev/apply-proto-go.sh'" >> /home/vscode/.bashrc
 
-./proto.sh
+$(dirname "$0")/install-proto-plugins.sh
