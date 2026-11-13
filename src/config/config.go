@@ -20,6 +20,8 @@ type AuthConfig struct {
 	RedisHost          string `env:"REDIS_HOST,required"`
 	RedisDB            int    `env:"REDIS_DB,required"`
 	RedisPassword      string `env:"REDIS_PASSWORD,required"`
+	UserServiceHost    string `env:"USER_SERVICE_HOST,required"`
+	UserServicePort    int    `env:"USER_SERVICE_PORT,required"`
 }
 
 var config AuthConfig

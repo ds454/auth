@@ -12,7 +12,7 @@ import (
 	genproblem "github.com/ds454/auth/src/generated/ds454/locomotive/problem/v0"
 	"github.com/ds454/auth/src/log"
 	"github.com/ds454/auth/src/token"
-	"github.com/ds454/auth/src/userservice"
+	userservice "github.com/ds454/auth/src/userService"
 	authv3 "github.com/envoyproxy/go-control-plane/envoy/service/auth/v3"
 	"github.com/redis/go-redis/v9"
 	"google.golang.org/grpc/codes"
