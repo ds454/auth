@@ -303,6 +303,14 @@ func (s *AuthServer) Login(ctx context.Context, req *genauth.LoginRequest) (*gen
 	}, nil
 }
 
+// Ping
+func (s *AuthServer) Ping(ctx context.Context, req *genauth.PingRequest) (*genauth.PingResponse, error) {
+	log.Debug("Received ping request")
+	return &genauth.PingResponse{
+		Pong: "pong",
+	}, nil
+}
+
 func getAllUsersSessionTokens(ctx context.Context, s *AuthServer, uuid string) ([]string, *genproblem.Problem) {
 	refs, err := s.Redis.SMembers(ctx, userSessionsPrefix+uuid).Result()
 	if err != nil {

@@ -9,7 +9,7 @@ import (
 	grpcauth "github.com/ds454/auth/src/grpc"
 	"github.com/ds454/auth/src/log"
 	"github.com/ds454/auth/src/rediswrap"
-	userservice "github.com/ds454/auth/src/userService"
+	userservice "github.com/ds454/auth/src/userservice"
 	authv3 "github.com/envoyproxy/go-control-plane/envoy/service/auth/v3"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
